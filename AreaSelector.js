@@ -12,6 +12,7 @@ class AreaSelector {
 
   // private properties
   #area;
+  #areaRect;
   #startPoint;
   #endPoint;
   #mousemoveHandler
@@ -49,7 +50,7 @@ class AreaSelector {
   }
 
   #handleMouseDown = () => {
-    window.addEventListener('mousedown', e => {
+    this.element.addEventListener('mousedown', e => {
       const { clientX, clientY } = e;
       this.#startPoint = this.#getRelativePositionInElement(clientX, clientY);
       this.#endPoint = this.#startPoint;
@@ -64,6 +65,7 @@ class AreaSelector {
       const { clientX, clientY } = e;
       this.#endPoint = this.#getRelativePositionInElement(clientX, clientY);
       this.#updateArea();
+      this.#scrollOnDrag(clientY);
     }
     window.addEventListener('mousemove', this.#mousemoveHandler);
   }
@@ -84,6 +86,7 @@ class AreaSelector {
   }
 
   #updateArea = () => {
+    console.log('updateArea')
     const top = Math.min(this.#startPoint.y, this.#endPoint.y);
     const left = Math.min(this.#startPoint.x, this.#endPoint.x);
     const width = Math.abs(this.#startPoint.x - this.#endPoint.x);
@@ -92,6 +95,7 @@ class AreaSelector {
     this.#area.style.left = left + 'px';
     this.#area.style.width = width + 'px';
     this.#area.style.height = height + 'px';
+    this.#areaRect = { top, left, width, height };
     this.#selectItems();
   }
 
@@ -118,5 +122,12 @@ class AreaSelector {
 
     const noIntersection = left2 > right1 || left1 > right2 || bottom1 < top2 || bottom2 < top1;
     return !noIntersection;
+  }
+
+  #scrollOnDrag = (mouseY) => {
+    const { y, height } = this.element.getBoundingClientRect();
+    if (mouseY > (y + height)) {
+      this.element.scrollBy({ top: 100, behavior: 'smooth' });
+    }
   }
 }
