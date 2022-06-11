@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
@@ -21,18 +22,14 @@ body {
 }
 
 .item {
-  margin: 20px;
+  margin: 30px;
   padding: 20px 0;
   text-align: center;
-  font-size: 36px;
+  font-size: 40px;
   border: 2px solid #878787;
   user-select: none;
 }
 
-.item[data-selected=true] {
-  background-color: skyblue;
-}
-
-.test {
-  color: rgb(0, 119, 255);
+.item[data-selected="true"] {
+  background-color: lightblue;
 }
