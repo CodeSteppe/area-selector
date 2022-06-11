@@ -12,10 +12,9 @@ class AreaSelector {
 
   // private properties
   #area;
-  #areaRect;
   #startPoint;
   #endPoint;
-  #mousemoveHandler
+  #mouseMoveHandler;
 
   // private methods
   #createSelectArea = () => {
@@ -61,18 +60,18 @@ class AreaSelector {
   }
 
   #handleMouseMove = () => {
-    this.#mousemoveHandler = e => {
+    this.#mouseMoveHandler = e => {
       const { clientX, clientY } = e;
       this.#endPoint = this.#getRelativePositionInElement(clientX, clientY);
       this.#updateArea();
       this.#scrollOnDrag(clientY);
     }
-    window.addEventListener('mousemove', this.#mousemoveHandler);
+    window.addEventListener('mousemove', this.#mouseMoveHandler);
   }
 
   #handleMouseUp = () => {
     window.addEventListener('mouseup', e => {
-      window.removeEventListener('mousemove', this.#mousemoveHandler);
+      window.removeEventListener('mousemove', this.#mouseMoveHandler);
       this.#hideArea();
     });
   }
@@ -95,7 +94,6 @@ class AreaSelector {
     this.#area.style.left = left + 'px';
     this.#area.style.width = width + 'px';
     this.#area.style.height = height + 'px';
-    this.#areaRect = { top, left, width, height };
     this.#selectItems();
   }
 
@@ -126,8 +124,19 @@ class AreaSelector {
 
   #scrollOnDrag = (mouseY) => {
     const { y, height } = this.element.getBoundingClientRect();
-    if (mouseY > (y + height)) {
-      this.element.scrollBy({ top: 100, behavior: 'smooth' });
+
+    const scroll = () => {
+      let scrollLength;
+      if (mouseY < y) {
+        scrollLength = mouseY - y;
+      } else if (mouseY > (y + height)) {
+        scrollLength = mouseY - (y + height);
+      }
+      if (scrollLength) {
+        this.element.scrollBy({ top: scrollLength, behavior: 'auto' });
+      }
     }
+
+    scroll();
   }
 }

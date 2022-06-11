@@ -14,7 +14,7 @@ body {
 
 #list {
   width: 60vw;
-  height: 90vh;
+  height: 80vh;
   border: 8px solid #878787;
   overflow-y: auto;
   overflow-x: hidden;
