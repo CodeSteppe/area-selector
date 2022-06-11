@@ -25,10 +25,12 @@ body {
 }
 
 .item {
-  width: 20vw;
-  padding: 40px 0;
-  text-align: center;
-  font-size: 44px;
+  width: 18vw;
+  height: 18vw;
+  display: grid;
+  place-items: center;
+  font-size: 80px;
+  font-weight: bold;
   border: 2px solid #878787;
   user-select: none;
 }
