@@ -104,6 +104,7 @@ class AreaSelector {
   #selectItems = () => {
     const areaRect = this.#area.getBoundingClientRect();
     const items = this.element.querySelectorAll(this.selectableTargetSelector);
+    let hasChange;
     for (const item of items) {
       const itemRect = item.getBoundingClientRect();
       const hasIntersection = this.#twoRectsHaveIntersection(areaRect, itemRect);
@@ -114,14 +115,17 @@ class AreaSelector {
       if (selected) {
         if (index === -1) {
           this.selectedIds.push(itemId);
-          this.onSelectionChange(this.selectedIds);
+          hasChange = true;
         }
       } else {
         if (index >= 0) {
           this.selectedIds.splice(index, 1);
-          this.onSelectionChange(this.selectedIds);
+          hasChange = true;
         }
       }
+    }
+    if (hasChange) {
+      this.onSelectionChange(this.selectedIds);
     }
   }
 
