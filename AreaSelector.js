@@ -35,7 +35,7 @@ class AreaSelector {
   #getRelativePositionInElement = (clientX, clientY) => {
     const rect = this.element.getBoundingClientRect();
     const { left, top } = rect;
-    const { scrollLeft, scrollTop, scrollWidth, scrollHeight } = this.element
+    const { scrollLeft, scrollTop, scrollWidth, scrollHeight } = this.element;
     let x = clientX - left + scrollLeft;
     let y = clientY - top + scrollTop;
     if (x <= 0) {
