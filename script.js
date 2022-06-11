@@ -1,5 +1,5 @@
 const areaSelector = new AreaSelector({
-  element: document.querySelector('#list'),
+  element: document.querySelector('#grid'),
   selectableTargetSelector: '.item',
   dataSetKeyForSelection: 'id',
   onSelectionChange: (selectedIds) => {

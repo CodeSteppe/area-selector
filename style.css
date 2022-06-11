@@ -13,11 +13,11 @@ body {
   place-items: center;
 }
 
-#list {
+#grid {
   width: 80vw;
   height: 80vh;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(10, 1fr);
   gap: 5vw;
   padding: 5vw;
   border: 8px solid #878787;
