@@ -1,13 +1,18 @@
 class AreaSelector {
   constructor({
     element,
-    selectableTargetSelector
+    selectableTargetSelector,
+    dataSetKeyForSelection,
+    onSelectionChange
   }) {
     this.element = element;
     this.selectableTargetSelector = selectableTargetSelector;
+    this.dataSetKeyForSelection = dataSetKeyForSelection;
+    this.onSelectionChange = onSelectionChange;
     this.#createSelectArea();
     this.#handleMouseDown();
     this.#handleMouseUp();
+    this.selectedIds = [];
   }
 
   // private properties
@@ -85,7 +90,6 @@ class AreaSelector {
   }
 
   #updateArea = () => {
-    console.log('updateArea')
     const top = Math.min(this.#startPoint.y, this.#endPoint.y);
     const left = Math.min(this.#startPoint.x, this.#endPoint.x);
     const width = Math.abs(this.#startPoint.x - this.#endPoint.x);
@@ -103,7 +107,21 @@ class AreaSelector {
     for (const item of items) {
       const itemRect = item.getBoundingClientRect();
       const hasIntersection = this.#twoRectsHaveIntersection(areaRect, itemRect);
-      item.dataset.selected = hasIntersection ? true : false;
+      const selected = hasIntersection ? true : false;
+      item.dataset.selected = selected;
+      const itemId = item.dataset[this.dataSetKeyForSelection];
+      const index = this.selectedIds.indexOf(itemId);
+      if (selected) {
+        if (index === -1) {
+          this.selectedIds.push(itemId);
+          this.onSelectionChange(this.selectedIds);
+        }
+      } else {
+        if (index >= 0) {
+          this.selectedIds.splice(index, 1);
+          this.onSelectionChange(this.selectedIds);
+        }
+      }
     }
   }
 
@@ -118,9 +136,15 @@ class AreaSelector {
     let bottom1 = rect1.top + rect1.height;
     let bottom2 = rect2.top + rect2.height;
 
-    const noIntersection = left2 > right1 || left1 > right2 || bottom1 < top2 || bottom2 < top1;
+    let width1 = rect1.width;
+    let width2 = rect2.width;
+    let height1 = rect1.height;
+    let height2 = rect2.height;
+
+    const noIntersection = left2 > right1 || left1 > right2 || bottom1 < top2 || bottom2 < top1 || width1 <= 0 || width2 <= 0 || height1 <= 0 || height2 <= 0;
     return !noIntersection;
   }
+
 
   #scrollOnDrag = (mouseY) => {
     const { y, height } = this.element.getBoundingClientRect();
