@@ -14,22 +14,25 @@ body {
 }
 
 #list {
-  width: 60vw;
+  width: 80vw;
   height: 80vh;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5vw;
+  padding: 5vw;
   border: 8px solid #878787;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: auto;
 }
 
 .item {
-  margin: 30px;
-  padding: 20px 0;
+  width: 20vw;
+  padding: 40px 0;
   text-align: center;
-  font-size: 40px;
+  font-size: 44px;
   border: 2px solid #878787;
   user-select: none;
 }
 
 .item[data-selected="true"] {
-  background-color: lightblue;
+  background-color: rgb(174, 229, 255);
 }

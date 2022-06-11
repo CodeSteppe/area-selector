@@ -34,14 +34,14 @@ class AreaSelector {
 
   #getRelativePositionInElement = (clientX, clientY) => {
     const rect = this.element.getBoundingClientRect();
-    const { left, top, width, height } = rect;
-    const { scrollTop, scrollHeight } = this.element
-    let x = clientX - left;
+    const { left, top } = rect;
+    const { scrollLeft, scrollTop, scrollWidth, scrollHeight } = this.element
+    let x = clientX - left + scrollLeft;
     let y = clientY - top + scrollTop;
     if (x <= 0) {
       x = 0;
-    } else if (x > width) {
-      x = width;
+    } else if (x > scrollWidth) {
+      x = scrollWidth;
     }
 
     if (y <= 0) {
@@ -69,7 +69,7 @@ class AreaSelector {
       const { clientX, clientY } = e;
       this.#endPoint = this.#getRelativePositionInElement(clientX, clientY);
       this.#updateArea();
-      this.#scrollOnDrag(clientY);
+      this.#scrollOnDrag(clientX, clientY);
     }
     window.addEventListener('mousemove', this.#mouseMoveHandler);
   }
@@ -146,21 +146,24 @@ class AreaSelector {
   }
 
 
-  #scrollOnDrag = (mouseY) => {
-    const { y, height } = this.element.getBoundingClientRect();
+  #scrollOnDrag = (mouseX, mouseY) => {
+    const { x, y, width, height } = this.element.getBoundingClientRect();
+    let scrollX, scrollY;
 
-    const scroll = () => {
-      let scrollLength;
-      if (mouseY < y) {
-        scrollLength = mouseY - y;
-      } else if (mouseY > (y + height)) {
-        scrollLength = mouseY - (y + height);
-      }
-      if (scrollLength) {
-        this.element.scrollBy({ top: scrollLength, behavior: 'auto' });
-      }
+    if (mouseX < x) {
+      scrollX = mouseX - x;
+    } else if (mouseX > (x + width)) {
+      scrollX = mouseX - (x + width);
     }
 
-    scroll();
+    if (mouseY < y) {
+      scrollY = mouseY - y;
+    } else if (mouseY > (y + height)) {
+      scrollY = mouseY - (y + height);
+    }
+
+    if (scrollX || scrollY) {
+      this.element.scrollBy({ left: scrollX, top: scrollY, behavior: 'auto' });
+    }
   }
 }
