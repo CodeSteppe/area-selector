@@ -2,17 +2,17 @@ class AreaSelector {
   constructor({
     element,
     selectableTargetSelector,
-    dataSetKeyForSelection,
+    datasetKeyForSelection,
     onSelectionChange
   }) {
     this.element = element;
     this.selectableTargetSelector = selectableTargetSelector;
-    this.dataSetKeyForSelection = dataSetKeyForSelection;
+    this.datasetKeyForSelection = datasetKeyForSelection;
     this.onSelectionChange = onSelectionChange;
+    this.selectedIds = [];
     this.#createSelectArea();
     this.#handleMouseDown();
     this.#handleMouseUp();
-    this.selectedIds = [];
   }
 
   // private properties
@@ -26,67 +26,59 @@ class AreaSelector {
     const area = document.createElement('div');
     this.element.style.position = 'relative';
     area.style.position = 'absolute';
-    area.style.border = '1px solid rgb(0, 119, 255)';
-    area.style.backgroundColor = 'rgba(0, 119, 255, 0.2)';
-    this.element.append(area);
+    area.style.border = '1px solid rgb(0,119,255)';
+    area.style.background = 'rgba(0,119,255,0.2)';
+    this.element.appendChild(area);
     this.#area = area;
   }
 
-  #getRelativePositionInElement = (clientX, clientY) => {
-    const rect = this.element.getBoundingClientRect();
-    const { left, top } = rect;
-    const { scrollLeft, scrollTop, scrollWidth, scrollHeight } = this.element;
-    let x = clientX - left + scrollLeft;
-    let y = clientY - top + scrollTop;
-    if (x <= 0) {
-      x = 0;
-    } else if (x > scrollWidth) {
-      x = scrollWidth;
+  #twoRectsHaveIntersection = (rect1, rect2) => {
+    const left1 = rect1.left;
+    const left2 = rect2.left;
+    const right1 = rect1.left + rect1.width;
+    const right2 = rect2.left + rect2.width;
+
+    const top1 = rect1.top;
+    const top2 = rect2.top;
+    const bottom1 = rect1.top + rect1.height;
+    const bottom2 = rect2.top + rect2.height;
+
+    const width1 = rect1.width;
+    const width2 = rect2.width;
+    const height1 = rect1.height;
+    const height2 = rect2.height;
+
+    const noIntersection = left2 > right1 || left1 > right2 || bottom1 < top2 || bottom2 < top1 || width1 <= 0 || width2 <= 0 || height1 <= 0 || height2 <= 0;
+
+    return !noIntersection;
+  }
+
+  #selectItems = () => {
+    const areaRect = this.#area.getBoundingClientRect();
+    const items = this.element.querySelectorAll(this.selectableTargetSelector);
+    let selectionChanged;
+    for (const item of items) {
+      const itemRect = item.getBoundingClientRect();
+      const hasIntersection = this.#twoRectsHaveIntersection(areaRect, itemRect);
+      const selected = hasIntersection ? true : false;
+      item.dataset.selected = selected;
+      const itemId = item.dataset[this.datasetKeyForSelection];
+      const index = this.selectedIds.indexOf(itemId);
+      if (selected) {
+        if (index === -1) {
+          this.selectedIds.push(itemId);
+          selectionChanged = true;
+        }
+      } else {
+        if (index >= 0) {
+          this.selectedIds.splice(index, 1);
+          selectionChanged = true;
+        }
+      }
     }
-
-    if (y <= 0) {
-      y = 0;
-    } else if (y > scrollHeight) {
-      y = scrollHeight;
+    if (selectionChanged) {
+      this.onSelectionChange(this.selectedIds);
     }
-
-    return { x, y };
-  }
-
-  #handleMouseDown = () => {
-    this.element.addEventListener('mousedown', e => {
-      const { clientX, clientY } = e;
-      this.#startPoint = this.#getRelativePositionInElement(clientX, clientY);
-      this.#endPoint = this.#startPoint;
-      this.#updateArea();
-      this.#showArea();
-      this.#handleMouseMove();
-    });
-  }
-
-  #handleMouseMove = () => {
-    this.#mouseMoveHandler = e => {
-      const { clientX, clientY } = e;
-      this.#endPoint = this.#getRelativePositionInElement(clientX, clientY);
-      this.#updateArea();
-      this.#scrollOnDrag(clientX, clientY);
-    }
-    window.addEventListener('mousemove', this.#mouseMoveHandler);
-  }
-
-  #handleMouseUp = () => {
-    window.addEventListener('mouseup', e => {
-      window.removeEventListener('mousemove', this.#mouseMoveHandler);
-      this.#hideArea();
-    });
-  }
-
-  #showArea = () => {
-    this.#area.style.display = 'block';
-  }
-
-  #hideArea = () => {
-    this.#area.style.display = 'none';
   }
 
   #updateArea = () => {
@@ -101,57 +93,68 @@ class AreaSelector {
     this.#selectItems();
   }
 
-  #selectItems = () => {
-    const areaRect = this.#area.getBoundingClientRect();
-    const items = this.element.querySelectorAll(this.selectableTargetSelector);
-    let hasChange;
-    for (const item of items) {
-      const itemRect = item.getBoundingClientRect();
-      const hasIntersection = this.#twoRectsHaveIntersection(areaRect, itemRect);
-      const selected = hasIntersection ? true : false;
-      item.dataset.selected = selected;
-      const itemId = item.dataset[this.dataSetKeyForSelection];
-      const index = this.selectedIds.indexOf(itemId);
-      if (selected) {
-        if (index === -1) {
-          this.selectedIds.push(itemId);
-          hasChange = true;
-        }
-      } else {
-        if (index >= 0) {
-          this.selectedIds.splice(index, 1);
-          hasChange = true;
-        }
-      }
-    }
-    if (hasChange) {
-      this.onSelectionChange(this.selectedIds);
-    }
+  #hideArea = () => {
+    this.#area.style.display = 'none';
   }
 
-  #twoRectsHaveIntersection = (rect1, rect2) => {
-    let left1 = rect1.left;
-    let left2 = rect2.left;
-    let right1 = rect1.left + rect1.width;
-    let right2 = rect2.left + rect2.width;
-
-    let top1 = rect1.top;
-    let top2 = rect2.top;
-    let bottom1 = rect1.top + rect1.height;
-    let bottom2 = rect2.top + rect2.height;
-
-    let width1 = rect1.width;
-    let width2 = rect2.width;
-    let height1 = rect1.height;
-    let height2 = rect2.height;
-
-    const noIntersection = left2 > right1 || left1 > right2 || bottom1 < top2 || bottom2 < top1 || width1 <= 0 || width2 <= 0 || height1 <= 0 || height2 <= 0;
-    return !noIntersection;
+  #showArea = () => {
+    this.#area.style.display = 'block';
   }
 
+  #getRelativePositionInElement = (clientX, clientY) => {
+    const rect = this.element.getBoundingClientRect();
+    const { left, top } = rect;
+    const { scrollLeft, scrollTop, scrollWidth, scrollHeight } = this.element;
+    let x = clientX - left + scrollLeft;
+    let y = clientY - top + scrollTop;
+    if (x < 0) {
+      x = 0;
+    } else if (x > scrollWidth) {
+      x = scrollWidth;
+    }
+
+    if (y < 0) {
+      y = 0;
+    } else if (y > scrollHeight) {
+      y = scrollHeight;
+    }
+
+    return { x: Math.round(x), y: Math.round(y) };
+  }
+
+  #handleMouseDown = () => {
+    this.element.addEventListener('mousedown', e => {
+      const { clientX, clientY } = e;
+      this.#startPoint = this.#getRelativePositionInElement(clientX, clientY);
+      // console.log('start point', this.#startPoint);
+      this.#endPoint = this.#startPoint;
+      this.#updateArea();
+      this.#showArea();
+      this.#handleMouseMove();
+    });
+  }
+
+  #handleMouseMove = () => {
+    this.#mouseMoveHandler = (e) => {
+      const { clientX, clientY } = e;
+      this.#endPoint = this.#getRelativePositionInElement(clientX, clientY);
+      // console.log('end point', this.#endPoint);
+      this.#updateArea();
+      this.#scrollOnDrag(clientX, clientY);
+    }
+    window.addEventListener('mousemove', this.#mouseMoveHandler);
+  }
+
+  #handleMouseUp = () => {
+    window.addEventListener('mouseup', e => {
+      window.removeEventListener('mousemove', this.#mouseMoveHandler);
+      this.#hideArea();
+    });
+  }
 
   #scrollOnDrag = (mouseX, mouseY) => {
     const { x, y, width, height } = this.element.getBoundingClientRect();
+
     let scrollX, scrollY;
 
     if (mouseX < x) {
@@ -167,7 +170,11 @@ class AreaSelector {
     }
 
     if (scrollX || scrollY) {
-      this.element.scrollBy({ left: scrollX, top: scrollY, behavior: 'auto' });
+      this.element.scrollBy({
+        left: scrollX,
+        top: scrollY,
+        behavior: 'auto'
+      });
     }
   }
 }
