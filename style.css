@@ -1,32 +1,76 @@
+@import url("https://fonts.googleapis.com/css2?family=Kdam+Thmor+Pro&display=swap");
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  display: grid;
-  place-items: center;
+  position: relative;
+  background: url(./bg.jpg) no-repeat;
+  background-size: cover;
+  background-position: center;
 }
 
 #grid {
-  width: 80vw;
-  height: 80vh;
+  position: absolute;
+  top: 5vh;
+  left: 5vh;
+  width: 90vh;
+  height: 90vh;
   display: grid;
   grid-template-columns: repeat(10, 1fr);
-  gap: 5vw;
-  padding: 5vw;
-  border: 8px solid #878787;
+  gap: 5vh;
+  padding: 5vh;
+  border: 0px solid #fff;
+  background-color: rgba(255, 255, 255, 0.8);
   overflow: auto;
+  clip-path: polygon(0 0, 100% 0, 100% 17%, 69% 100%, 100% 100%, 0 100%);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#title {
+  position: absolute;
+  top: 2vh;
+  right: 0;
+  font-size: 8vh;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 4px 4px 16px #000;
+  font-family: "Kdam Thmor Pro", sans-serif;
+}
+
+#title h1:nth-child(1) {
+  position: relative;
+  left: 3vw;
+  font-size: 2.4em;
+}
+#title h1:nth-child(2) {
+  position: relative;
+  left: -4vw;
+}
+
+#jsOnly {
+  margin-top: 4vh;
+  display: flex;
+  align-items: baseline;
+  gap: 2vw;
+  text-transform: lowercase;
+  padding-left: 2vw;
+}
+
+#jsOnly img {
+  width: 12vw;
+  height: 12vw;
 }
 
 .item {
-  width: 18vw;
-  height: 18vw;
+  width: 18vh;
+  height: 18vh;
   display: grid;
   place-items: center;
   font-size: 80px;
