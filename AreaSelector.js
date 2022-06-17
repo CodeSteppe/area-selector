@@ -20,6 +20,9 @@ class AreaSelector {
   #startPoint;
   #endPoint;
   #mouseMoveHandler;
+  #ctrlKeyPressed;
+  #tempSelectedIds = [];
+  #toBeUnselectedIds = [];
 
   // private methods
   #createSelectArea = () => {
@@ -56,28 +59,45 @@ class AreaSelector {
   #selectItems = () => {
     const areaRect = this.#area.getBoundingClientRect();
     const items = this.element.querySelectorAll(this.selectableTargetSelector);
-    let selectionChanged;
     for (const item of items) {
       const itemRect = item.getBoundingClientRect();
       const hasIntersection = this.#twoRectsHaveIntersection(areaRect, itemRect);
-      const selected = hasIntersection ? true : false;
-      item.dataset.selected = selected;
       const itemId = item.dataset[this.datasetKeyForSelection];
       const index = this.selectedIds.indexOf(itemId);
-      if (selected) {
-        if (index === -1) {
-          this.selectedIds.push(itemId);
-          selectionChanged = true;
-        }
+      const tempIndex = this.#tempSelectedIds.indexOf(itemId);
+      let selected;
+      if (this.#toBeUnselectedIds.includes(itemId)) {
+        selected = false;
       } else {
-        if (index >= 0) {
-          this.selectedIds.splice(index, 1);
-          selectionChanged = true;
+        if (this.#ctrlKeyPressed) {
+          if (index >= 0) {
+            if (hasIntersection) {
+              selected = false;
+              this.#toBeUnselectedIds.push(itemId);
+            } else {
+              selected = true
+            }
+          } else {
+            selected = hasIntersection;
+          }
+        } else {
+          selected = hasIntersection;
         }
       }
-    }
-    if (selectionChanged) {
-      this.onSelectionChange(this.selectedIds);
+
+      item.dataset.selected = selected;
+      if (selected) {
+        if (tempIndex === -1) {
+          this.#tempSelectedIds.push(itemId);
+        }
+      } else {
+        if (tempIndex >= 0) {
+          this.#tempSelectedIds.splice(tempIndex, 1);
+        }
+        if (index >= 0) {
+          this.selectedIds.splice(index, 1);
+        }
+      }
     }
   }
 
@@ -124,7 +144,13 @@ class AreaSelector {
 
   #handleMouseDown = () => {
     this.element.addEventListener('mousedown', e => {
-      const { clientX, clientY } = e;
+      const { clientX, clientY, ctrlKey } = e;
+      this.#ctrlKeyPressed = ctrlKey;
+      this.#tempSelectedIds = [];
+      this.#toBeUnselectedIds = [];
+      if (!ctrlKey) {
+        this.selectedIds = [];
+      }
       this.#startPoint = this.#getRelativePositionInElement(clientX, clientY);
       // console.log('start point', this.#startPoint);
       this.#endPoint = this.#startPoint;
@@ -149,6 +175,8 @@ class AreaSelector {
     window.addEventListener('mouseup', e => {
       window.removeEventListener('mousemove', this.#mouseMoveHandler);
       this.#hideArea();
+      console.log('mouseup', this);
+      this.selectedIds.push(...this.#tempSelectedIds);
     });
   }
 
