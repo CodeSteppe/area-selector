@@ -22,7 +22,7 @@ class AreaSelector {
   #mouseMoveHandler;
   #ctrlKeyPressed;
   #tempSelectedIds = [];
-  #toBeUnselectedIds = [];
+  #unselectedIds = [];
 
   // private methods
   #createSelectArea = () => {
@@ -66,16 +66,16 @@ class AreaSelector {
       const index = this.selectedIds.indexOf(itemId);
       const tempIndex = this.#tempSelectedIds.indexOf(itemId);
       let selected;
-      if (this.#toBeUnselectedIds.includes(itemId)) {
+      if (this.#unselectedIds.includes(itemId)) {
         selected = false;
       } else {
         if (this.#ctrlKeyPressed) {
           if (index >= 0) {
             if (hasIntersection) {
               selected = false;
-              this.#toBeUnselectedIds.push(itemId);
+              this.#unselectedIds.push(itemId);
             } else {
-              selected = true
+              selected = true;
             }
           } else {
             selected = hasIntersection;
@@ -147,7 +147,7 @@ class AreaSelector {
       const { clientX, clientY, ctrlKey } = e;
       this.#ctrlKeyPressed = ctrlKey;
       this.#tempSelectedIds = [];
-      this.#toBeUnselectedIds = [];
+      this.#unselectedIds = [];
       if (!ctrlKey) {
         this.selectedIds = [];
       }
@@ -175,8 +175,9 @@ class AreaSelector {
     window.addEventListener('mouseup', e => {
       window.removeEventListener('mousemove', this.#mouseMoveHandler);
       this.#hideArea();
-      console.log('mouseup', this);
       this.selectedIds.push(...this.#tempSelectedIds);
+      const updated = Array.from(new Set([...this.selectedIds, ...this.#tempSelectedIds]));
+      this.onSelectionChange(updated);
     });
   }
 
