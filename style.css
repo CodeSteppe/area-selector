@@ -14,19 +14,19 @@ body {
 }
 
 #grid {
-  width: 80vw;
+  width: 80vh;
   height: 80vh;
   display: grid;
   grid-template-columns: repeat(10, 1fr);
-  gap: 5vw;
-  padding: 5vw;
+  gap: 5vh;
+  padding: 5vh;
   border: 8px solid #878787;
   overflow: auto;
 }
 
 .item {
-  width: 18vw;
-  height: 18vw;
+  width: 18vh;
+  height: 18vh;
   display: grid;
   place-items: center;
   font-size: 80px;
