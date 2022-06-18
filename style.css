@@ -36,5 +36,5 @@ body {
 }
 
 .item[data-selected="true"] {
-  background-color: rgb(174, 229, 255);
+  background-color: #aee5ff;
 }
