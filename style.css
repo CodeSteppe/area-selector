@@ -14,7 +14,7 @@ body {
 }
 
 #grid {
-  width: 80vh;
+  width: 80vw;
   height: 80vh;
   display: grid;
   grid-template-columns: repeat(10, 1fr);
